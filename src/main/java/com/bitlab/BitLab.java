@@ -11,7 +11,7 @@ public class BitLab {
         try {
             logger.info(client.send("GET /start/HTTP/1.1"));//test połączenia (wysyłany nagłówek HTTP) // usunąć w dalszej części pracy
 
-
+        //komentarz
         } catch (Exception e) {
             e.printStackTrace();
         }
