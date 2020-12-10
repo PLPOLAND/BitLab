@@ -16,6 +16,7 @@ public class HelloWorldTest {
 
         assertThrows(UnsupportedOperationException.class, () -> {
             fruits.add("Mango");
+            fruits.add("Mango2");
             fruits.remove(1);
         });
 
