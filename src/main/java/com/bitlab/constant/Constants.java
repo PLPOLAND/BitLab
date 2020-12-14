@@ -19,8 +19,9 @@ import java.util.Properties;
 public class Constants {
 
     private Constants () {
-
     }
+
+    public static final int THREADS = 1;// Ilość wątków do obsługi połączeń
 
     /* Size of message */
     public static final int DEFAULT_SIZE_OF_HEADER = 24;
@@ -35,6 +36,7 @@ public class Constants {
     public static final int MSG_WITNESS_FLAG = 1 << 30;
     public static final int MSG_TYPE_MASK = 0xffffffff >> 2;
     public static final ObjectMapper om = new ObjectMapper();
+
 
     /* Note that of those with the service bits flag, most only support a subset of possible options */
     /* https://github.com/bitcoin/bitcoin/blob/master/src/chainparams.cpp */

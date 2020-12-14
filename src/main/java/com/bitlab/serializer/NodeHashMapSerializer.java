@@ -22,11 +22,10 @@ public class NodeHashMapSerializer extends StdSerializer<NodeHashMap> {
     @Override
     public void serialize(NodeHashMap n, JsonGenerator j, SerializerProvider s) throws IOException {
         j.writeStartObject();
-        j.writeNumberField("duplicated", n.getDuplicated());
-        j.writeNumberField("size", n.getMap().size());
+        j.writeNumberField("size", n.getPeery().size());
         j.writeFieldName("node");
         j.writeStartArray();
-        for(Map.Entry<String, Node> elem : n.getMap().entrySet()) {
+        for(Map.Entry<String, Node> elem : n.getPeery().entrySet()) {
             j.writeStartObject();
             j.writeStringField("ip", elem.getKey());
             j.writeNumberField("port", elem.getValue().getList().get(0).getPort());

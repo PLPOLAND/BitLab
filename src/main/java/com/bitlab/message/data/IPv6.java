@@ -85,6 +85,14 @@ public class IPv6 {
         return buffer.array();
     }
 
+    // public String toIPV4String(){
+    //     if(addr.isIPv4Compatible() || addr.isIPv4Mapped()) {
+    //     IPv4Address derivedIpv4Address = addr.getEmbeddedIPv4Address();
+    //     byte ipv4Bytes[] = derivedIpv4Address.getBytes();
+    //     ...
+    //  }
+    // }
+
     @Override
     public String toString() {
         return ip;
