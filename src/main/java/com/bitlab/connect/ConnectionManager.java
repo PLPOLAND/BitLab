@@ -56,7 +56,7 @@ public class ConnectionManager {
             ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
             while(!queue.isEmpty()){
                 while (channels.size()<=Constants.THREADS) {
-                    NetAddr target = queue.element();
+                    NetAddr target = queue.take();
                     logger.debug("Connecting to " + target.getIp().toString() + ":" + target.getPort());
                     StateBundle bundle = new StateBundle(target.getIp(), target.getPort(), new Date().getTime());
                     ConnectionHandler.map.put(target.getIp().toString(), bundle);
