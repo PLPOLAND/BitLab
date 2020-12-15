@@ -12,6 +12,9 @@ public class StateBundle {
     private boolean timeout;
     private boolean success;
     private Throwable exception;
+    private TypeOfAction typeOfAction;
+
+    
 
     public StateBundle (final String ip, final int port, final long connection_try) {
         this.ip = ip;
@@ -19,6 +22,7 @@ public class StateBundle {
         this.connectionTry = connection_try;
         timeout = false;
         success = false;
+        typeOfAction = TypeOfAction.NOTSET;
     }
 
     public StateBundle (final IPv6 ip, final  int port, final long connectionTry) {
@@ -70,5 +74,13 @@ public class StateBundle {
             return exception.getMessage();
         else
             return null;
+    }
+    
+    public TypeOfAction getTypeOfAction() {
+        return this.typeOfAction;
+    }
+
+    public void setTypeOfAction(TypeOfAction typeOfAction) {
+        this.typeOfAction = typeOfAction;
     }
 }

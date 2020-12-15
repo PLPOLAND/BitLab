@@ -13,16 +13,23 @@ public class NodeHashMap {
     public NodeHashMap () {
         peery = new ConcurrentHashMap<>();
     }
-
-    synchronized public void insert (NetAddr netAddr, StateBundle bundle) {
+    /**
+     * Dodaje pera do listy
+     * @param netAddr
+     * @param bundle
+     * @return wartość logiczną odpowiadająca czy dany adres był już sprawdzany
+     */
+    synchronized public boolean insert (NetAddr netAddr, StateBundle bundle) {
         String ip = netAddr.getIp().toString();
 
         if(!peery.containsKey(ip)) {
-            peery.put(ip, new Node(netAddr, bundle));
+            peery.put(ip, new Node(netAddr, bundle));//Dodaj nowego Peera
+            return false;
         } else { // ten peer już istenieje, więc dodaje informacje o powtórzeniu się 
             Node node = peery.get(ip);
-            node.add(netAddr, bundle);
+            node.add(netAddr, bundle);//Dodaj info
             node.duplicated();
+            return true;
         }
     }
 

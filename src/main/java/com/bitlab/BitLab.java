@@ -11,7 +11,8 @@ public class BitLab {
     public static void main(String... args) {
         ConnectionManager cMenager = new ConnectionManager();
         try {
-            cMenager.run();//TODO: zablokowanie ponownego skanowania tego samego peera!
+            cMenager.getPeersByDNS();
+            cMenager.getAddr(ConnectionManager.queue.take());
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -1,6 +1,8 @@
 package com.bitlab.connect;
 
 import com.bitlab.connect.data.StateBundle;
+import com.bitlab.connect.data.TypeOfAction;
+
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -23,6 +25,8 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
     public static final ConcurrentHashMap<String, StateBundle> map = new ConcurrentHashMap<>();
     private boolean isSendGetaddr;
     private StateBundle bundle;
+    TypeOfAction typeOfAction;
+    
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -37,56 +41,112 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         isSendGetaddr = false;
-        String ip = ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress().getHostAddress();
+        String ip = ((InetSocketAddress) ctx.channel().remoteAddress()).getAddress().getHostAddress();
         bundle = map.get(IPv6.convert(ip));
-        if(bundle == null) {
+        if (bundle == null) {
             logger.warn("Check out this ip: " + ip);
             ctx.close();
         }
+        typeOfAction = bundle.getTypeOfAction();
         bundle.setSuccess(true);
         logger.info("ChannelActive with: " + IPv6.convert(bundle.getIp()) + "/" + bundle.getPort());
-        writeAndFlush(ctx, new Version(bundle.getIp(), bundle.getPort()).serialize());
+
+        switch (typeOfAction) {
+            case GETADDR:
+            case SCAN:
+            //Dla Skanowania sieci i pobierania adressu;
+                writeAndFlush(ctx, new Version(bundle.getIp(), bundle.getPort()).serialize());
+                break;
+        
+            default:
+                break;
+        }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.debug("Closed:" + bundle.getIp() + " / " + bundle.getPort());
+        logger.debug("Closed:" + bundle.getIp() + ":" + bundle.getPort());
     }
     /**
      * Obsługa komend przychodzących
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        // msg is message
+        
         Message message = (Message) msg;
-        switch (message.getCommand()) {
-            case VERSION:
-                logger.debug("Got: VERSION; From "+IPv6.convert(bundle.getIp()));
-                writeAndFlush(ctx, new Verack().serialize());
-                bundle.setVersion(new Version(message.getHeader()));
-                break;
-            case VERACK:
-                logger.debug("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
-                writeAndFlush(ctx, new GetAddr().serialize());
-                isSendGetaddr = true;
-                break;
-            case ADDR:
-                logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
-                Addr addr = new Addr(message.getHeader());
-                logger.info(addr.toString());
+        switch (typeOfAction) {
+            case GETADDR://Pobranie adresów
+                switch (message.getCommand()) {
+                    case VERSION:
+                        logger.debug("Got: VERSION; From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Verack().serialize());
+                        bundle.setVersion(new Version(message.getHeader()));
+                        break;
+                    case VERACK:
+                        logger.debug("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new GetAddr().serialize());
+                        isSendGetaddr = true;
+                        break;
+                    case ADDR:
+                        logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
+                        Addr addr = new Addr(message.getHeader());
+                        // logger.info(addr.toString());
 
-                if(isSendGetaddr && addr.getList().size() > 1) {
+                        if (isSendGetaddr && addr.getList().size() > 1) {
 
-                    for(NetAddr netAddr : addr.getList()) {
-                            ConnectionManager.queue.put(netAddr);
-                    }
-
-                    // for(NetAddr netAddr : addr.getList())
-                    //     ConnectionManagerOld.map.insert(netAddr, bundle);
-                    ctx.close();
+                            for (NetAddr netAddr : addr.getList()) {
+                                // jeśli peer o takim adresie nie był jeszcze scanowany to dodaj do kolejki
+                                if (!ConnectionManager.peers.insert(netAddr, new StateBundle(netAddr.getIp(), netAddr.getPort(), 0))) {
+                                    logger.debug("Poraz pierwszy: " + netAddr.getIp().toString());
+                                } else {
+                                    logger.debug(netAddr.getIp().toString() + " był już na liście w systemie");
+                                }
+                            }
+                            ctx.close();
+                        }
+                        break;
                 }
                 break;
+            case SCAN://Scanowanie sieci
+                switch (message.getCommand()) {
+                    case VERSION:
+                        logger.debug("Got: VERSION; From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Verack().serialize());
+                        bundle.setVersion(new Version(message.getHeader()));
+                        break;
+                    case VERACK:
+                        logger.debug("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new GetAddr().serialize());
+                        isSendGetaddr = true;
+                        break;
+                    case ADDR:
+                        logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
+                        Addr addr = new Addr(message.getHeader());
+                        logger.info(addr.toString());
+
+                        if (isSendGetaddr && addr.getList().size() > 1) {
+
+                            for (NetAddr netAddr : addr.getList()) {
+                                // jeśli peer o takim adresie nie był jeszcze scanowany to dodaj do kolejki
+                                if (!ConnectionManager.peers.insert(netAddr,
+                                        new StateBundle(netAddr.getIp(), netAddr.getPort(), 0))) {
+                                    ConnectionManager.queue.put(netAddr);
+                                    logger.debug("Dodano do kolejki: " + netAddr.getIp().toString());
+                                } else {
+                                    logger.debug("Pominięto: " + netAddr.getIp().toString() + " był już w kolejce");
+                                }
+                            }
+                            ctx.close();
+                        }
+                        break;
+                }
+                break;
+
+            default:
+                break;
         }
+        
+       
     }
 
     @Override
