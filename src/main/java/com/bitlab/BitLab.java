@@ -9,10 +9,10 @@ public class BitLab {
     private static final Logger logger = LoggerFactory.getLogger(BitLab.class);
 
     public static void main(String... args) {
-        ConnectionManager cMenager = new ConnectionManager();
+        ConnectionManager cManager = new ConnectionManager();
         try {
-            cMenager.getPeersByDNS();
-            cMenager.getAddr(ConnectionManager.queue.take());
+            cManager.getPeersByDNS();
+            cManager.getAddr(ConnectionManager.queue.take());
         } catch (Exception e) {
             e.printStackTrace();
         }
