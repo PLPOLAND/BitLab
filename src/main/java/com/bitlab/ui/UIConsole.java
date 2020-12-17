@@ -8,7 +8,11 @@ import java.util.Scanner;
 public class UIConsole {
     private static final Scanner keyboard = new Scanner(System.in);
 
-
+    /**
+     * read command from user.
+     * if command is incomplete or unknown print hints and try again
+     * @return complete user's command
+     */
     public static String read() {
 
         while (true) {
