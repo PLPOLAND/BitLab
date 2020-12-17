@@ -19,8 +19,15 @@ public class UIConsole {
             System.out.print("\n> ");
             Command command = new Command(keyboard.nextLine());
 
-            if (command.isComplete())
-                return command.getCommand();
+            if (command.isComplete()){
+                if (command.getParam().isPresent()){
+                    if(command.getParam().get().equals("-h") || command.getParam().get().equals("help"))
+                        System.out.println(UserCommandMap.getInfo(command.getCommand()));
+                    else System.out.println("Unknown parameter");
+                }
+                else
+                    return command.getCommand();
+            }
 
             else {
                 System.out.println( command.getHints() );
