@@ -13,7 +13,9 @@ public enum UserCommandMap {
     VERACK("verack"),
     GETADDR("getaddr"),
     ADDR("addr"),
-    PRINT("print");
+    PRINT("print"),
+    SCAN("scan"),
+    EXIT("exit");
 
     private String name;
     UserCommandMap(String name) {

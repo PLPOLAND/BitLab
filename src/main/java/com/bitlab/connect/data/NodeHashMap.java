@@ -2,16 +2,20 @@ package com.bitlab.connect.data;
 
 import com.bitlab.message.data.NetAddr;
 
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 /**
  * Kontener odpowiadający za przechowywanie peerów
  */
 public class NodeHashMap {
 
-    private final ConcurrentHashMap<String, Node> peery;
+    private final TreeMap<String, Node> peery;
 
     public NodeHashMap () {
-        peery = new ConcurrentHashMap<>();
+        peery = new TreeMap<>();
     }
     /**
      * Dodaje pera do listy
@@ -41,7 +45,7 @@ public class NodeHashMap {
         peery.clear();
     }
 
-    public ConcurrentHashMap<String, Node> getPeery () {
-        return peery;
+    public Set<String> getPeery () {
+        return peery.keySet();
     }
 }

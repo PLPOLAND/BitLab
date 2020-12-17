@@ -77,21 +77,4 @@ public class Addr extends Message implements Receivable {
     public List<NetAddr> getList() {
         return addr_list;
     }
-
-    public void toFile (Version recvVersion, String ip, int port, long timestamp) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        map.put("timestamp", timestamp);
-        map.put("ip", ip);
-        map.put("port", port);
-        map.put("version", recvVersion);
-        map.put("addr", addr_list);
-        try {
-            File file = new File("data" + File.separator + timestamp + "-" + new Date().getTime() + ".txt");
-            if(!file.exists())
-                logger.debug("file.createNewFile(): " + file.createNewFile());
-            Constants.om.writerWithDefaultPrettyPrinter().writeValue(file, map);
-        } catch (Exception e) {
-            logger.error("ADDR - toFile", e);
-        }
-    }
 }

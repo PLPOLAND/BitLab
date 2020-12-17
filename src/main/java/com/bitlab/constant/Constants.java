@@ -3,11 +3,8 @@ package com.bitlab.constant;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.bitlab.connect.data.NodeHashMap;
-import com.bitlab.deserializer.NetAddrDeserializer;
 import com.bitlab.message.data.IPv6;
 import com.bitlab.message.data.NetAddr;
-import com.bitlab.serializer.IPv6Serializer;
-import com.bitlab.serializer.NodeHashMapSerializer;
 import com.bitlab.util.ByteUtils;
 
 import java.io.File;
@@ -35,7 +32,6 @@ public class Constants {
     public static final InvType[] INV_TYPES = InvType.values();
     public static final int MSG_WITNESS_FLAG = 1 << 30;
     public static final int MSG_TYPE_MASK = 0xffffffff >> 2;
-    public static final ObjectMapper om = new ObjectMapper();
 
 
     /* Note that of those with the service bits flag, most only support a subset of possible options */
@@ -97,11 +93,5 @@ public class Constants {
                     break;
             }
         }
-
-        SimpleModule sm = new SimpleModule();
-        sm.addSerializer(IPv6.class, new IPv6Serializer());
-        sm.addSerializer(NodeHashMap.class, new NodeHashMapSerializer());
-        sm.addDeserializer(NetAddr.class, new NetAddrDeserializer());
-        om.registerModule(sm);
     }
 }

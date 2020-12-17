@@ -27,6 +27,7 @@ import com.bitlab.constant.Constants;
 import com.bitlab.message.data.IPv6;
 import com.bitlab.message.data.NetAddr;
 import com.bitlab.util.Lookup;
+import com.bitlab.util.Watek;
 
 import org.slf4j.Logger;
 /**
@@ -35,11 +36,11 @@ import org.slf4j.Logger;
 public class ConnectionManager {
 
     private static final Logger logger = LoggerFactory.getLogger(ConnectionManager.class); // do pisania logów
-    private EventLoopGroup worker;//do obsługi połączeń
+    private static EventLoopGroup worker;//do obsługi połączeń
     public static final NodeHashMap peers = new NodeHashMap(); //znalezione peery
 
     public static final LinkedBlockingQueue<NetAddr> queue = new LinkedBlockingQueue<>();//kolejka do przejrzenia
-    Bootstrap bootstrap;// do tworzenia nowych połączeń ("kanałów")
+    static Bootstrap bootstrap;// do tworzenia nowych połączeń ("kanałów")
 
     public ConnectionManager(){
         worker = new NioEventLoopGroup(Constants.THREADS);
@@ -85,9 +86,13 @@ public class ConnectionManager {
                 while (channels.size()>=1) {
                 }
             channels.close().sync();
-        } finally {
-            worker.shutdownGracefully();
+        } catch (Exception e) {
+            logger.debug(e.getMessage().toString());
         }
+        
+        // finally {
+            // worker.shutdownGracefully();
+        // }
     }
 
     /**
@@ -95,10 +100,10 @@ public class ConnectionManager {
      * (potrzebuje jakiego kolwiek peera w kolejce)
      * @throws Exception
      */
-    public void runScan()throws Exception{
+    public void runScan(Watek w) throws Exception{
         try {
             ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-            while(!queue.isEmpty()){
+            while(!queue.isEmpty() && w.shouldRun){
                 while (channels.size()<=Constants.THREADS) {
                     NetAddr target = queue.take();
                     logger.debug("Connecting to " + target.getIp().toString() + ":" + target.getPort());
@@ -112,8 +117,8 @@ public class ConnectionManager {
             
             
             channels.close().sync();
-        } finally{
-            worker.shutdownGracefully();    
+        } catch(Exception e){
+            logger.debug(e.getMessage().toString());
         }
     }
     /**
@@ -134,6 +139,9 @@ public class ConnectionManager {
         });
 
         return bootstrap;
+    }
+    public void stop(){
+        worker.shutdownGracefully();
     }
 
 }
