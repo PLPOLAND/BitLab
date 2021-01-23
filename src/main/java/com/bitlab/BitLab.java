@@ -28,7 +28,7 @@ public class BitLab {
                         cManager.getAddr(ConnectionManager.queue.take());
                         break;
                     case GETDATA:
-                        cManager.getPeersByDNS();;
+                        cManager.getPeersByDNS();
 
                         System.out.println("Type in hash and press enter:");
                         Scanner scanner = new Scanner(System.in);
