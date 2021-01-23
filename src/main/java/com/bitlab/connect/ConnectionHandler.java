@@ -26,7 +26,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
     private boolean isSendGetaddr;
     private StateBundle bundle;
     TypeOfAction typeOfAction;
-    
+
 
     @Override
     public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
@@ -57,7 +57,9 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
             //Dla Skanowania sieci i pobierania adressu;
                 writeAndFlush(ctx, new Version(bundle.getIp(), bundle.getPort()).serialize());
                 break;
-        
+            case GETDATA:
+                writeAndFlush(ctx, new GetData().serialize());
+                break;
             default:
                 break;
         }
@@ -72,7 +74,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        
+
         Message message = (Message) msg;
         switch (typeOfAction) {
             case GETADDR://Pobranie adresów
@@ -145,8 +147,8 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
             default:
                 break;
         }
-        
-       
+
+
     }
 
     @Override

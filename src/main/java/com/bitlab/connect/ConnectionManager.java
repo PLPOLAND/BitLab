@@ -53,13 +53,13 @@ public class ConnectionManager {
      */
     public void getPeersByDNS(String address) throws Exception{
         ArrayList<InetAddress> byDNS = new ArrayList<>();// adresy początkowe w sieci do przejrzenia w poszukiwaniu kolejnych peerów
-        byDNS.addAll(Arrays.asList(Lookup.lookup(address))); 
+        byDNS.addAll(Arrays.asList(Lookup.lookup(address)));
         for (InetAddress addr : byDNS) {
             queue.put(new NetAddr(0, 0, addr.getHostAddress(), 8333));
         }
         logger.info("znaleziono przez DNS: " + byDNS.size());
     }
-    
+
     /**
      * Poszukuje dostępnych seedów pod zakodowanym adresem w programie
      * @throws Exception
@@ -75,7 +75,7 @@ public class ConnectionManager {
     public void getAddr(NetAddr addr) throws Exception{
         try {
             ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-            
+
                 NetAddr target = addr;
                 logger.debug("Connecting to " + target.getIp().toString() + ":" + target.getPort());
                 StateBundle bundle = new StateBundle(target.getIp(), target.getPort(), new Date().getTime());
@@ -89,14 +89,36 @@ public class ConnectionManager {
         } catch (Exception e) {
             logger.debug(e.getMessage().toString());
         }
-        
+
         // finally {
             // worker.shutdownGracefully();
         // }
     }
 
     /**
-     * Scanuje rekursywnie w poszukiwaniu wszystkich peerów 
+     * odpowiada za pobranie bloku lub transakcji indentyfikowanym za pomocą hasha.
+     * @param addr
+     * @param hash
+     * @throws Exception
+     */
+    public void getData(NetAddr addr, String hash) throws Exception {
+        try {
+            ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+            NetAddr target = addr;
+            logger.debug("Requesting "+hash+" from " + target.getIp().toString() + ":" + target.getPort());
+            StateBundle bundle = new StateBundle(target.getIp(), target.getPort(), new Date().getTime());
+            bundle.setTypeOfAction(TypeOfAction.GETDATA);
+            ConnectionHandler.map.put(target.getIp().toString(), bundle);
+            ChannelFuture future = bootstrap.connect(target.getIp().toString(), target.getPort());
+            channels.add(future.channel());
+            channels.close().sync();
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+        }
+    }
+
+    /**
+     * Scanuje rekursywnie w poszukiwaniu wszystkich peerów
      * (potrzebuje jakiego kolwiek peera w kolejce)
      * @throws Exception
      */
@@ -114,8 +136,8 @@ public class ConnectionManager {
                     channels.add(future.channel());
                 }
             }
-            
-            
+
+
             channels.close().sync();
         } catch(Exception e){
             logger.debug(e.getMessage().toString());

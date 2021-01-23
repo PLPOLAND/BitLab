@@ -1,9 +1,9 @@
 package com.bitlab;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import com.bitlab.connect.ConnectionManager;
-import com.bitlab.connect.data.Node;
 import com.bitlab.ui.UIConsole;
 import com.bitlab.ui.UserCommandMap;
 import com.bitlab.util.Watek;
@@ -26,6 +26,16 @@ public class BitLab {
                     case GETADDR:
                         cManager.getPeersByDNS();
                         cManager.getAddr(ConnectionManager.queue.take());
+                        break;
+                    case GETDATA:
+                        cManager.getPeersByDNS();;
+
+                        System.out.println("Type in hash and press enter:");
+                        Scanner scanner = new Scanner(System.in);
+                        String hash = scanner.nextLine();
+
+                        cManager.getData(ConnectionManager.queue.take(), hash);
+
                         break;
                     case PRINT:
                         logger.info("Wypisuję aktualnieznane ip peerów");
