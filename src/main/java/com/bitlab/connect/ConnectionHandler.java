@@ -105,6 +105,12 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                             ctx.close();
                         }
                         break;
+                    case PING:
+                        Ping ping = new Ping(message.getHeader());
+                        logger.debug("Got: PING("+ping.getNonce()+"); From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
+                        logger.debug("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
+                        break;
                 }
                 break;
             case SCAN://Scanowanie sieci
@@ -138,6 +144,12 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                             }
                             ctx.close();
                         }
+                        break;
+                    case PING:
+                        Ping ping = new Ping(message.getHeader());
+                        logger.debug("Got: PING(" + ping.getNonce() + "); From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
+                        logger.debug("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
                         break;
                 }
                 break;
