@@ -54,7 +54,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
         switch (typeOfAction) {
             case GETADDR:
             case SCAN:
-            //Dla Skanowania sieci i pobierania adressu;
+            //Dla Skanowania sieci i pobierania adressu zainicjuj połączenie z peerem (wyślij VERSION)
                 writeAndFlush(ctx, new Version(bundle.getIp(), bundle.getPort()).serialize());
                 break;
         
@@ -128,7 +128,6 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                     case ADDR:
                         logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
                         Addr addr = new Addr(message.getHeader());
-                        logger.info(addr.toString());
 
                         if (isSendGetaddr && addr.getList().size() > 1) {
 

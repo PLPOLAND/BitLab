@@ -15,7 +15,8 @@ public enum UserCommandMap {
     ADDR("addr"),
     PRINT("print"),
     SCAN("scan"),
-    EXIT("exit");
+    EXIT("exit"), 
+    STOP("stop");
 
     private String name;
     UserCommandMap(String name) {
@@ -48,6 +49,9 @@ public enum UserCommandMap {
                 response = "print\n" +
                         "print list on the screen ";
                 break;
+            case STOP:
+                response = "stop\n"+
+                        "ending scanning task";
             default:
                 response = "ERROR";
         }

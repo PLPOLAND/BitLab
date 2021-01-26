@@ -1,9 +1,12 @@
 package com.bitlab;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.util.ArrayList;
 
 import com.bitlab.connect.ConnectionManager;
 import com.bitlab.connect.data.Node;
+import com.bitlab.constant.Constants;
 import com.bitlab.ui.UIConsole;
 import com.bitlab.ui.UserCommandMap;
 import com.bitlab.util.Watek;
@@ -28,16 +31,26 @@ public class BitLab {
                         cManager.getAddr(ConnectionManager.queue.take());
                         break;
                     case PRINT:
-                        logger.info("Wypisuję aktualnieznane ip peerów");
+                        logger.info("Wypisuję aktualnie znane ip peerów");
+                        File file = new File("scan_result.txt");
+                        FileWriter writer = new FileWriter(file);
                         for (String ip : ConnectionManager.peers.getPeery()) {
                             logger.info(ip);
+                            writer.write(ip+"\n");
                         }
+                        writer.close();
                         logger.info("Wypisano peerów: " + ConnectionManager.peers.getPeery().size());
+                        logger.info("Zapisanych peerów do pliku: " + ConnectionManager.peers.getPeery().size());
                         break;
                     case SCAN:
                         Watek w = new Watek(Watek.WhatToRun.SCAN,cManager);
                         new Thread(w).start();
                         watki.add(w);
+                        break;
+                    case STOP:
+                        for (Watek watek : watki) {
+                            watek.shouldRun = false;
+                        }
                         break;
                     default:
                         break;
