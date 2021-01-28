@@ -90,7 +90,7 @@ public class ConnectionManager {
                 ConnectionHandler.map.put(target.getIp().toString(), bundle);
                 ChannelFuture future = bootstrap.connect(target.getIp().toString(), target.getPort());
                 channels.add(future.channel());
-                while (channels.size()>=1) {
+                while (channels.size()>=1) {// wait until work is done
                 }
             channels.close().sync();
         } catch (Exception e) {
@@ -100,6 +100,27 @@ public class ConnectionManager {
         // finally {
             // worker.shutdownGracefully();
         // }
+    }
+
+    public void ping(NetAddr addr) {
+        try {
+            ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
+
+            NetAddr target = addr;
+            logger.info("Pinging to " + target.getIp().toString() + ":" + target.getPort());
+            StateBundle bundle = new StateBundle(target.getIp(), target.getPort(), new Date().getTime());
+            bundle.setTypeOfAction(TypeOfAction.PING);
+            ConnectionHandler.map.put(target.getIp().toString(), bundle);
+            ChannelFuture future = bootstrap.connect(target.getIp().toString(), target.getPort());
+            channels.add(future.channel());
+            while (channels.size() >= 1) {//wait until work is done
+                ;
+            }
+            channels.close().sync();
+        } catch (Exception e) {
+            logger.debug(e.getMessage().toString());
+        }
+
     }
 
     /**

@@ -54,7 +54,8 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
         switch (typeOfAction) {
             case GETADDR:
             case SCAN:
-            //Dla Skanowania sieci i pobierania adressu;
+            case PING:
+            //Dla Skanowania sieci / pobierania adresu / testu pingowania zainicjuj połączenie z peerem (wyślij VERSION)
                 writeAndFlush(ctx, new Version(bundle.getIp(), bundle.getPort()).serialize());
                 break;
             case GETDATA:
@@ -67,7 +68,7 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        logger.debug("Closed:" + bundle.getIp() + ":" + bundle.getPort());
+        logger.info("Closed:" + bundle.getIp() + ":" + bundle.getPort());
     }
     /**
      * Obsługa komend przychodzących
@@ -80,17 +81,17 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
             case GETADDR://Pobranie adresów
                 switch (message.getCommand()) {
                     case VERSION:
-                        logger.debug("Got: VERSION; From " + IPv6.convert(bundle.getIp()));
+                        logger.info("Got: VERSION; From " + IPv6.convert(bundle.getIp()));
                         writeAndFlush(ctx, new Verack().serialize());
                         bundle.setVersion(new Version(message.getHeader()));
                         break;
                     case VERACK:
-                        logger.debug("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
+                        logger.info("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
                         writeAndFlush(ctx, new GetAddr().serialize());
                         isSendGetaddr = true;
                         break;
                     case ADDR:
-                        logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
+                        logger.info("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
                         Addr addr = new Addr(message.getHeader());
                         // logger.info(addr.toString());
 
@@ -106,6 +107,12 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                             }
                             ctx.close();
                         }
+                        break;
+                    case PING:
+                        Ping ping = new Ping(message.getHeader());
+                        logger.info("Got: PING("+ping.getNonce()+"); From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
+                        logger.info("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
                         break;
                 }
                 break;
@@ -124,7 +131,6 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                     case ADDR:
                         logger.debug("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
                         Addr addr = new Addr(message.getHeader());
-                        logger.info(addr.toString());
 
                         if (isSendGetaddr && addr.getList().size() > 1) {
 
@@ -141,9 +147,37 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                             ctx.close();
                         }
                         break;
+                    case PING:
+                        Ping ping = new Ping(message.getHeader());
+                        logger.debug("Got: PING(" + ping.getNonce() + "); From " + IPv6.convert(bundle.getIp()));
+                        writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
+                        logger.debug("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
+                        break;
                 }
                 break;
-
+            case PING: //sending PING and wait for PONG
+                switch (message.getCommand()) {
+                    case VERSION:
+                    logger.info("Got: VERSION; From " + IPv6.convert(bundle.getIp()));
+                    writeAndFlush(ctx, new Verack().serialize());
+                    bundle.setVersion(new Version(message.getHeader()));
+                    break;
+                    case VERACK:
+                        logger.info("Got: VERACK; From " + IPv6.convert(bundle.getIp()));
+                        Ping tmp = new Ping();
+                        writeAndFlush(ctx, tmp.serialize());
+                        logger.info("Sent: Ping("+tmp.getNonce()+") to: " + IPv6.convert(bundle.getIp()));
+                        break;
+                    case ADDR:
+                        logger.info("Got: ADDR; From " + IPv6.convert(bundle.getIp()));
+                        break;
+                    case PONG:
+                        Pong tmp2 = new Pong(message.getHeader());
+                        logger.info("Got: PONG("+ tmp2.getNonce()+ ") from: " + IPv6.convert(bundle.getIp()));
+                        ctx.close();
+                        break;
+                }
+                break;
             default:
                 break;
         }

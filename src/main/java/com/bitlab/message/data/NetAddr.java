@@ -31,6 +31,9 @@ public class NetAddr {
     public NetAddr(long time, long services, String ip, int port) throws Exception{
         this(time, services, new IPv6(ip), port);
     }
+    public NetAddr(String ip,int port){
+         this(System.currentTimeMillis()/1000, 0, new IPv6(ip), port);
+    }
 
     @Override
     public String toString() {

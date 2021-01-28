@@ -18,7 +18,7 @@ public class Constants {
     private Constants () {
     }
 
-    public static final int THREADS = 1;// Ilość wątków do obsługi połączeń
+    public static final int THREADS = 3;// Ilość wątków do obsługi połączeń
 
     /* Size of message */
     public static final int DEFAULT_SIZE_OF_HEADER = 24;
@@ -44,6 +44,7 @@ public class Constants {
             "seed.bitcoin.jonasschnelli.ch", // Jonas Schnelli, only supports x1, x5, x9, and xd
             "seed.btc.petertodd.org" // Peter Todd, only supports x1, x5, x9, and xd
     };
+
 
     /* Properties */
     public static int PROTOCOL_VERSION;
