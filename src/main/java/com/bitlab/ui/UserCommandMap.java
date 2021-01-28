@@ -16,7 +16,8 @@ public enum UserCommandMap {
     PRINT("print"),
     SCAN("scan"),
     EXIT("exit"), 
-    STOP("stop");
+    STOP("stop"), 
+    PING("ping");
 
     private String name;
     UserCommandMap(String name) {
@@ -52,6 +53,10 @@ public enum UserCommandMap {
             case STOP:
                 response = "stop\n"+
                         "ending scanning task";
+                break;
+            case PING:
+                response = "ping\n"+
+                        "sending ping to target";
             default:
                 response = "ERROR";
         }

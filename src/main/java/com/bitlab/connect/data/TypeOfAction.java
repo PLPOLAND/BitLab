@@ -6,5 +6,6 @@ public enum TypeOfAction {
     NOTSET, 
     GETADDR, 
     SCAN,
-    STAYINCONNECTION
+    STAYINCONNECTION,
+    PING
 }

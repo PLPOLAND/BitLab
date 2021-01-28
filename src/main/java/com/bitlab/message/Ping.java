@@ -5,9 +5,11 @@ import com.bitlab.util.ByteParser;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Random;
 
 public class Ping extends Message implements Sendable, Receivable{
     private long nonce;
+    static Random random = new Random();
 
     public Ping(ByteBuffer buffer) {
         super(CommandMap.PING);
@@ -22,6 +24,13 @@ public class Ping extends Message implements Sendable, Receivable{
     public Ping(Header header) {
         super(CommandMap.PING);
         deserialize(header);
+    }
+    public Ping(){
+        super(CommandMap.PING);
+        do{
+            this.nonce = random.nextLong();
+        }while(this.nonce<0);
+
     }
 
     @Override
