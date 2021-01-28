@@ -1,5 +1,8 @@
 package com.bitlab.connect;
 
+import com.bitlab.model.Block;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.LoggerFactory;
 
 import io.netty.bootstrap.Bootstrap;
@@ -15,6 +18,10 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.GlobalEventExecutor;
 
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -53,13 +60,13 @@ public class ConnectionManager {
      */
     public void getPeersByDNS(String address) throws Exception{
         ArrayList<InetAddress> byDNS = new ArrayList<>();// adresy początkowe w sieci do przejrzenia w poszukiwaniu kolejnych peerów
-        byDNS.addAll(Arrays.asList(Lookup.lookup(address))); 
+        byDNS.addAll(Arrays.asList(Lookup.lookup(address)));
         for (InetAddress addr : byDNS) {
             queue.put(new NetAddr(0, 0, addr.getHostAddress(), 8333));
         }
         logger.info("znaleziono przez DNS: " + byDNS.size());
     }
-    
+
     /**
      * Poszukuje dostępnych seedów pod zakodowanym adresem w programie
      * @throws Exception
@@ -75,7 +82,7 @@ public class ConnectionManager {
     public void getAddr(NetAddr addr) throws Exception{
         try {
             ChannelGroup channels = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
-            
+
                 NetAddr target = addr;
                 logger.debug("Connecting to " + target.getIp().toString() + ":" + target.getPort());
                 StateBundle bundle = new StateBundle(target.getIp(), target.getPort(), new Date().getTime());
@@ -89,14 +96,43 @@ public class ConnectionManager {
         } catch (Exception e) {
             logger.debug(e.getMessage().toString());
         }
-        
+
         // finally {
             // worker.shutdownGracefully();
         // }
     }
 
     /**
-     * Scanuje rekursywnie w poszukiwaniu wszystkich peerów 
+     * odpowiada za pobranie bloku lub transakcji indentyfikowanym za pomocą hasha.
+     * @param addr
+     * @param hash
+     * @throws Exception
+     */
+    public void getData(NetAddr addr, final String hash) throws Exception {
+        try{
+            final String bitcoinApiUrl = "https://api.blockcypher.com/v1/btc/main/blocks/";
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI(bitcoinApiUrl+hash))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = HttpClient.newBuilder()
+                    .build()
+                    .send(request, HttpResponse.BodyHandlers.ofString());
+
+            ObjectMapper mapper = new ObjectMapper();
+            Block block = mapper.readValue(response.body(), new TypeReference<Block>() {});
+
+            System.out.println(block);
+        }
+        catch (Exception ex){
+            System.out.println("Block with hash: "+hash+" does not exist");
+        }
+    }
+
+    /**
+     * Scanuje rekursywnie w poszukiwaniu wszystkich peerów
      * (potrzebuje jakiego kolwiek peera w kolejce)
      * @throws Exception
      */
@@ -114,8 +150,8 @@ public class ConnectionManager {
                     channels.add(future.channel());
                 }
             }
-            
-            
+
+
             channels.close().sync();
         } catch(Exception e){
             logger.debug(e.getMessage().toString());
