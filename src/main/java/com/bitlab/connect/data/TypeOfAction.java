@@ -7,6 +7,6 @@ public enum TypeOfAction {
     GETADDR, 
     SCAN,
     STAYINCONNECTION,
-    PING
+    PING,
     GETDATA
 }
