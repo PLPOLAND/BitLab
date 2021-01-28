@@ -12,6 +12,7 @@ public enum UserCommandMap {
     VERSION("version"),
     VERACK("verack"),
     GETADDR("getaddr"),
+    GETDATA("getdata"),
     ADDR("addr"),
     PRINT("print"),
     SCAN("scan"),
@@ -41,6 +42,10 @@ public enum UserCommandMap {
                         "The getaddr message sends a request to a node asking for information about known active peers to help with finding potential nodes in the network. The response to receiving this message is to transmit one or more addr messages with one or more peers from a database of known active peers. The typical presumption is that a node is likely to be active if it has been sending a message within the last three hours.\n" +
                         "\n" +
                         "No additional data is transmitted with this message.";
+                break;
+            case GETDATA:
+                response = "getdata\n"+
+                        "The getdata message sends a request for single block or transaction specified by hash";
                 break;
             case ADDR:
                 response = "addr\n" +
