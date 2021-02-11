@@ -118,23 +118,14 @@ public class Block {
     @Override
     public String toString() {
         return "Block{" + "\n" +
-                "   hash='" + hash + '\'' + ",\n" +
-                "   height=" + height + ",\n" +
-                "   chain='" + chain + '\'' + ",\n" +
-                "   total=" + total + ",\n" +
-                "   fees=" + fees + ",\n" +
-                "   size=" + size + ",\n" +
-                "   ver=" + ver + ",\n" +
-                "   time=" + time + ",\n" +
-                "   received_time=" + received_time + ",\n" +
-                "   coinbase_addr='" + coinbase_addr + '\'' + ",\n" +
-                "   relayed_by='" + relayed_by + '\'' + ",\n" +
+                "   version=" + ver + ",\n" +
+                "   prev_block=" + prev_block + "\n" +
+                "   merkle_root=" + mrkl_root + "\n" +
+                "   timestamp=" + time + ",\n" +
                 "   bits=" + bits + ",\n" +
                 "   nonce=" + nonce + ",\n" +
-                "   n_tx=" + n_tx + ",\n" +
-                "   prev_block='" + prev_block + '\'' + "\n" +
-                "   mrkl_root='" + mrkl_root + '\'' + "\n" +
-                "   txids=[\n" + txids.stream().map(id -> "       \'" + id + "\',\n").collect(Collectors.joining()) + "     ],\n" +
+                "   txn_count=" + n_tx + ",\n" +
+                "   txns=[\n" + txids.stream().map(id -> "       " + id + ",\n").collect(Collectors.joining()) + "     ],\n" +
                 '}';
     }
 }
