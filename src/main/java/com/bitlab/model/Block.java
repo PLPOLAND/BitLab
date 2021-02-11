@@ -6,23 +6,23 @@ import java.util.stream.Collectors;
 
 public class Block {
     private String hash;
-    private int height;
+    private long height;
     private String chain;
     private long total;
-    private int fees;
-    private int size;
-    private int ver;
+    private long fees;
+    private long size;
+    private long ver;
     private Date time;
     private Date received_time;
     private String coinbase_addr;
     private String relayed_by;
-    private int bits;
-    private int nonce;
-    private int n_tx;
+    private long bits;
+    private long nonce;
+    private long n_tx;
     private String prev_block;
     private String mrkl_root;
     private List<String> txids;
-    private int depth;
+    private long depth;
     private String prev_block_url;
     private String tx_url;
     private String next_txids;
@@ -31,7 +31,7 @@ public class Block {
         return hash;
     }
 
-    public int getHeight() {
+    public long getHeight() {
         return height;
     }
 
@@ -43,15 +43,15 @@ public class Block {
         return total;
     }
 
-    public int getFees() {
+    public long getFees() {
         return fees;
     }
 
-    public int getSize() {
+    public long getSize() {
         return size;
     }
 
-    public int getVer() {
+    public long getVer() {
         return ver;
     }
 
@@ -71,15 +71,15 @@ public class Block {
         return relayed_by;
     }
 
-    public int getBits() {
+    public long getBits() {
         return bits;
     }
 
-    public int getNonce() {
+    public long getNonce() {
         return nonce;
     }
 
-    public int getN_tx() {
+    public long getN_tx() {
         return n_tx;
     }
 
@@ -95,7 +95,7 @@ public class Block {
         return txids;
     }
 
-    public int getDepth() {
+    public long getDepth() {
         return depth;
     }
 
