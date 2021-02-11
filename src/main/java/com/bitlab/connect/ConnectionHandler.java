@@ -114,6 +114,10 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                         writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
                         logger.info("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
                         break;
+                    case REJECT: // sprawdzanie możliwości wywalenia błędu w połączeniu między peerami
+                        Reject reject = new Reject(message.getHeader());
+                        logger.info("GOT: REJECT" + reject.toString());
+                        break;
                 }
                 break;
             case SCAN://Scanowanie sieci
@@ -153,6 +157,10 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                         writeAndFlush(ctx, new Pong(ping.getNonce()).serialize());
                         logger.debug("Sent: PONG; TO:" + IPv6.convert(bundle.getIp()));
                         break;
+                    case REJECT: // sprawdzanie możliwości wywalenia błędu w połączeniu między peerami
+                        Reject reject = new Reject(message.getHeader());
+                        logger.info("GOT: REJECT" + reject.toString());
+                        break;
                 }
                 break;
             case PING: //sending PING and wait for PONG
@@ -175,6 +183,10 @@ public class ConnectionHandler extends ChannelInboundHandlerAdapter{
                         Pong tmp2 = new Pong(message.getHeader());
                         logger.info("Got: PONG("+ tmp2.getNonce()+ ") from: " + IPv6.convert(bundle.getIp()));
                         ctx.close();
+                        break;
+                    case REJECT: // sprawdzanie możliwości wywalenia błędu w połączeniu między peerami
+                        Reject reject = new Reject(message.getHeader());
+                        logger.info("GOT: REJECT" + reject.toString());
                         break;
                 }
                 break;
